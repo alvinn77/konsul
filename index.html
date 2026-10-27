@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Konsultasi Akademik</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+  <!-- HALAMAN LOGIN -->
+  <div id="loginPage" class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white p-7 rounded-xl border shadow-sm w-full max-w-md">
+
+      <div class="text-center mb-6">
+        <div class="text-blue-600 text-4xl mb-3">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+
+        <h1 class="text-xl font-bold">Sistem Konsultasi Akademik</h1>
+        <p class="text-sm text-slate-500 mt-2">
+          Silakan masuk untuk melanjutkan
+        </p>
+      </div>
+
+      <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+
+        <div>
+          <label class="block text-sm mb-1">Masuk sebagai</label>
+          <select id="loginRole" onchange="ubahFormLogin()"
+            class="w-full border rounded-lg p-3 text-sm">
+            <option value="mahasiswa">Mahasiswa</option>
+            <option value="dosen">Dosen</option>
+          </select>
+        </div>
+
+        <div id="namaLoginBox">
+          <label class="block text-sm mb-1">Nama Lengkap</label>
+          <input id="loginNama" type="text"
+            placeholder="Masukkan nama lengkap"
+            class="w-full border rounded-lg p-3 text-sm">
+        </div>
+
+        <div>
+          <label id="labelId" class="block text-sm mb-1">NIM / NPM</label>
+          <input id="loginId" type="text" required
+            placeholder="Masukkan NIM / NPM"
+            class="w-full border rounded-lg p-3 text-sm">
+        </div>
+
+        <div>
+          <label class="block text-sm mb-1">Password</label>
+          <input id="loginPassword" type="password" required
+            placeholder="Masukkan password"
+            class="w-full border rounded-lg p-3 text-sm">
+        </div>
+
+        <button type="submit"
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg text-sm font-semibold">
+          <i class="fa-solid fa-right-to-bracket mr-2"></i>
+          Masuk
+        </button>
+      </form>
+
+      <div class="border-t mt-5 pt-4">
+        <p class="text-xs text-slate-500 text-center mb-3">AKSES DEMO</p>
+
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" onclick="demoMahasiswa()"
+            class="bg-blue-50 text-blue-700 p-2 rounded-lg text-sm">
+            <i class="fa-solid fa-user-graduate mr-1"></i>
+            Mahasiswa
+          </button>
+
+          <button type="button" onclick="demoDosen()"
+            class="bg-slate-100 p-2 rounded-lg text-sm">
+            <i class="fa-solid fa-user-tie mr-1"></i>
+            Tia Tanjung
+          </button>
+        </div>
+      </div>
+
+      <p class="text-xs text-slate-400 mt-4 text-center">
+        Sistem Konsultasi Akademik - Demo
+      </p>
+    </div>
+  </div>
+
+  <!-- APLIKASI UTAMA -->
+  <div id="appContainer" class="hidden min-h-screen flex flex-col">
+
+    <header class="bg-white border-b sticky top-0 z-10 no-print">
+      <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center gap-3">
+
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-blue-600 text-white rounded-lg flex items-center justify-center">
+            <i class="fa-solid fa-graduation-cap"></i>
+          </div>
+
+          <div>
+            <h1 class="font-bold text-sm">Konsultasi Akademik</h1>
+            <p class="text-xs text-slate-500">Layanan konsultasi mahasiswa</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="text-right hidden sm:block">
+            <p id="userNama" class="text-xs font-semibold"></p>
+            <p id="userPeran" class="text-xs text-slate-500"></p>
+          </div>
+
+          <button onclick="handleLogout()"
+            class="bg-red-50 text-red-600 px-3 py-2 rounded-lg text-xs">
+            <i class="fa-solid fa-right-from-bracket mr-1"></i>
+            Keluar
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto w-full p-4 md:p-6 flex-1">
+
+      <!-- DASHBOARD MAHASISWA -->
+      <section id="mahasiswaView" class="space-y-6 hidden">
+
+        <div class="bg-white border rounded-xl p-5 shadow-sm">
+          <h2 class="font-bold mb-5 border-b pb-3">
+            <i class="fa-solid fa-file-circle-plus text-blue-600 mr-2"></i>
+            Ajukan Konsultasi
+          </h2>
+
+          <form onsubmit="submitForm(event)" class="space-y-4">
+
+            <div class="grid md:grid-cols-2 gap-4">
+
+              <div>
+                <label class="block text-sm mb-1">Nama Mahasiswa</label>
+                <input id="mhsNama" readonly
+                  class="w-full p-3 border rounded-lg text-sm bg-slate-100">
+              </div>
+
+              <div>
+                <label class="block text-sm mb-1">NIM / NPM</label>
+                <input id="mhsNpm" readonly
+                  class="w-full p-3 border rounded-lg text-sm bg-slate-100">
+              </div>
+
+              <div>
+                <label class="block text-sm mb-1">Topik Konsultasi</label>
+                <select id="mhsTopik" required
+                  class="w-full p-3 border rounded-lg text-sm">
+                  <option value="Kartu Rencana Studi (KRS)">Kartu Rencana Studi (KRS)</option>
+                  <option value="Konsultasi Mata Kuliah AKS">Konsultasi Mata Kuliah AKS</option>
+                  <option value="Evaluasi Nilai dan IPK">Evaluasi Nilai dan IPK</option>
+                  <option value="Jadwal Perkuliahan">Jadwal Perkuliahan</option>
+                  <option value="Bimbingan Tugas Akhir">Bimbingan Tugas Akhir</option>
+                  <option value="Kendala Akademik Lainnya">Kendala Akademik Lainnya</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm mb-1">Tanggal Pengajuan</label>
+                <input id="mhsTanggal" type="date" required
+                  class="w-full p-3 border rounded-lg text-sm">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm mb-1">Isi Konsultasi</label>
+              <textarea id="mhsCatatan" rows="4" required
+                placeholder="Jelaskan pertanyaan atau kendala akademik Anda..."
+                class="w-full p-3 border rounded-lg text-sm"></textarea>
+            </div>
+
+            <div class="flex justify-end">
+              <button type="submit"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-lg text-sm">
+                <i class="fa-solid fa-paper-plane mr-2"></i>
+                Kirim Konsultasi
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- RIWAYAT MAHASISWA -->
+        <div class="bg-white border rounded-xl p-5 shadow-sm">
+          <h2 class="font-bold mb-4 border-b pb-3">
+            <i class="fa-solid fa-clock-rotate-left text-blue-600 mr-2"></i>
+            Riwayat Konsultasi Saya
+          </h2>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-50">
+                <tr>
+                  <th class="p-3">Tanggal</th>
+                  <th class="p-3">Topik</th>
+                  <th class="p-3">Isi Konsultasi</th>
+                  <th class="p-3">Arahan Dosen</th>
+                  <th class="p-3">Status</th>
+                </tr>
+              </thead>
+              <tbody id="mhsTableBody" class="divide-y"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- DASHBOARD DOSEN -->
+      <section id="dosenView" class="hidden space-y-6">
+
+        <div class="bg-white border rounded-xl p-5 shadow-sm">
+          <h2 class="font-bold text-lg">Dashboard Dosen</h2>
+          <p class="text-sm text-slate-500 mt-1">
+            Selamat datang, Tia Tanjung. Kelola konsultasi seluruh mahasiswa di sini.
+          </p>
+        </div>
+
+        <div class="bg-white border rounded-xl p-4 flex flex-col md:flex-row gap-3 justify-between">
+          <input id="dosenSearch" type="text"
+            oninput="renderDosenTable()"
+            placeholder="Cari nama, NIM, atau topik..."
+            class="border rounded-lg p-3 text-sm w-full md:max-w-md">
+
+          <button onclick="window.print()"
+            class="bg-slate-100 border px-4 py-3 rounded-lg text-sm">
+            <i class="fa-solid fa-print mr-2"></i>
+            Cetak / Simpan PDF
+          </button>
+        </div>
+
+        <!-- STATISTIK -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="bg-white border rounded-xl p-4">
+            <p class="text-sm text-slate-500">Total Konsultasi</p>
+            <p id="totalData" class="text-2xl font-bold mt-2">0</p>
+          </div>
+
+          <div class="bg-white border rounded-xl p-4">
+            <p class="text-sm text-slate-500">Belum Selesai</p>
+            <p id="totalProses" class="text-2xl font-bold mt-2">0</p>
+          </div>
+
+          <div class="bg-white border rounded-xl p-4">
+            <p class="text-sm text-slate-500">Selesai</p>
+            <p id="totalSelesai" class="text-2xl font-bold mt-2">0</p>
+          </div>
+        </div>
+
+        <!-- TABEL KONSULTASI -->
+        <div class="bg-white border rounded-xl p-5 shadow-sm">
+          <h2 class="font-bold mb-4 border-b pb-3">
+            <i class="fa-solid fa-users-gear text-blue-600 mr-2"></i>
+            Semua Pengajuan Konsultasi
+          </h2>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-50">
+                <tr>
+                  <th class="p-3">Mahasiswa</th>
+                  <th class="p-3">Tanggal & Topik</th>
+                  <th class="p-3">Isi Konsultasi</th>
+                  <th class="p-3">Arahan Dosen</th>
+                  <th class="p-3">Status</th>
+                  <th class="p-3 no-print">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="dosenTableBody" class="divide-y"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="text-center text-xs text-slate-400 py-5">
+      Apss by Alvinestarss &copy; 2026
+    </footer>
+  </div>
+
+  <script>
+    const DOSEN_ID = "12345";
+    const DOSEN_PASSWORD = "12345";
+    const DOSEN_NAMA = "Tia Tanjung";
+    const STORAGE_KEY = "konsultasiData";
+
+    let currentUser = null;
+    let currentRole = null;
+    let state = loadState();
+
+    const statusList = [
+      "Diajukan",
+      "Dijadwalkan",
+      "Selesai"
+    ];
+
+    // MEMBACA DATA YANG SUDAH TERSIMPAN
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return [];
+
+        const parsed = JSON.parse(saved);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        console.error("Gagal membaca data konsultasi:", error);
+        return [];
+      }
+    }
+
+    // MEMUAT ULANG DATA TERBARU DARI PENYIMPANAN BROWSER
+    function refreshState() {
+      state = loadState();
+    }
+
+    // MENYIMPAN DATA KONSULTASI
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+
+        // Pastikan data berhasil dibaca kembali.
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved === null) {
+          throw new Error("Data tidak ditemukan setelah disimpan.");
+        }
+
+        return true;
+      } catch (error) {
+        console.error("Gagal menyimpan data konsultasi:", error);
+        alert("Data gagal disimpan. Periksa ruang penyimpanan browser.");
+        return false;
+      }
+    }
+
+    // TANGGAL HARI INI
+    function tanggalHariIni() {
+      const now = new Date();
+      const tahun = now.getFullYear();
+      const bulan = String(now.getMonth() + 1).padStart(2, "0");
+      const hari = String(now.getDate()).padStart(2, "0");
+      return `${tahun}-${bulan}-${hari}`;
+    }
+
+    document.getElementById("mhsTanggal").value = tanggalHariIni();
+
+    // FORM LOGIN
+    function ubahFormLogin() {
+      const role = document.getElementById("loginRole").value;
+      const namaBox = document.getElementById("namaLoginBox");
+      const namaInput = document.getElementById("loginNama");
+      const labelId = document.getElementById("labelId");
+      const inputId = document.getElementById("loginId");
+
+      if (role === "mahasiswa") {
+        namaBox.classList.remove("hidden");
+        namaInput.required = true;
+        labelId.textContent = "NIM / NPM";
+        inputId.placeholder = "Masukkan NIM / NPM";
+      } else {
+        namaBox.classList.add("hidden");
+        namaInput.required = false;
+        labelId.textContent = "ID Dosen";
+        inputId.placeholder = "Masukkan ID dosen";
+      }
+
+      inputId.value = "";
+      document.getElementById("loginPassword").value = "";
+    }
+
+    // LOGIN
+    function handleLogin(event) {
+      event.preventDefault();
+
+      const role = document.getElementById("loginRole").value;
+      const id = document.getElementById("loginId").value.trim();
+      const nama = document.getElementById("loginNama").value.trim();
+      const password = document.getElementById("loginPassword").value;
+
+      if (role === "dosen") {
+        if (id !== "12345" || password !== DOSEN_PASSWORD) {
+          alert("ID atau password dosen salah.");
+          return;
+        }
+
+        currentRole = "dosen";
+        currentUser = {
+          id: DOSEN_ID,
+          nama: DOSEN_NAMA
+        };
+      } else {
+        if (!id || !nama || !password) {
+          alert("Nama, NIM, dan password wajib diisi.");
+          return;
+        }
+
+        currentRole = "mahasiswa";
+        currentUser = {
+          id: id,
+          nama: nama
+        };
+      }
+
+      // Ambil data terbaru setiap kali login.
+      refreshState();
+      bukaAplikasi();
+    }
+
+    // LOGIN DEMO MAHASISWA
+    function demoMahasiswa() {
+      document.getElementById("loginRole").value = "mahasiswa";
+      ubahFormLogin();
+
+      document.getElementById("loginNama").value = "Mahasiswa Demo";
+      document.getElementById("loginId").value = "12345678";
+      document.getElementById("loginPassword").value = "demo";
+
+      document.getElementById("loginForm").requestSubmit();
+    }
+
+    // LOGIN DEMO DOSEN
+    function demoDosen() {
+      document.getElementById("loginRole").value = "dosen";
+      ubahFormLogin();
+
+      document.getElementById("loginId").value = "12345";
+      document.getElementById("loginPassword").value = DOSEN_PASSWORD;
+
+      document.getElementById("loginForm").requestSubmit();
+    }
+
+    // BUKA DASHBOARD
+    function bukaAplikasi() {
+      document.getElementById("loginPage").classList.add("hidden");
+      document.getElementById("appContainer").classList.remove("hidden");
+
+      document.getElementById("userNama").textContent = currentUser.nama;
+      document.getElementById("userPeran").textContent =
+        currentRole === "dosen" ? "Dosen" : "Mahasiswa";
+
+      if (currentRole === "mahasiswa") {
+        document.getElementById("mahasiswaView").classList.remove("hidden");
+        document.getElementById("dosenView").classList.add("hidden");
+
+        document.getElementById("mhsNama").value = currentUser.nama;
+        document.getElementById("mhsNpm").value = currentUser.id;
+
+        renderMhsTable();
+      } else {
+        document.getElementById("dosenView").classList.remove("hidden");
+        document.getElementById("mahasiswaView").classList.add("hidden");
+
+        document.getElementById("userNama").textContent = DOSEN_NAMA;
+        renderDosenTable();
+      }
+    }
+
+    // LOGOUT
+    function handleLogout() {
+      currentUser = null;
+      currentRole = null;
+
+      document.getElementById("appContainer").classList.add("hidden");
+      document.getElementById("loginPage").classList.remove("hidden");
+
+      document.getElementById("loginNama").value = "";
+      document.getElementById("loginId").value = "";
+      document.getElementById("loginPassword").value = "";
+
+      document.getElementById("loginRole").value = "mahasiswa";
+      ubahFormLogin();
+    }
+
+    // AJUKAN KONSULTASI
+    function submitForm(event) {
+      event.preventDefault();
+
+      if (!currentUser || currentRole !== "mahasiswa") {
+        alert("Silakan login sebagai mahasiswa.");
+        return;
+      }
+
+      const catatan = document.getElementById("mhsCatatan").value.trim();
+
+      if (!catatan) {
+        alert("Isi konsultasi tidak boleh kosong.");
+        return;
+      }
+
+      refreshState();
+
+      const item = {
+        id: Date.now(),
+        nama: currentUser.nama,
+        npm: currentUser.id,
+        topik: document.getElementById("mhsTopik").value,
+        tanggal: document.getElementById("mhsTanggal").value,
+        catatan: catatan,
+        arahan: "-",
+        status: "Diajukan"
+      };
+
+      state.unshift(item);
+
+      if (!saveState()) {
+        state = loadState();
+        return;
+      }
+
+      document.getElementById("mhsCatatan").value = "";
+      renderMhsTable();
+
+      alert("Pengajuan konsultasi berhasil dikirim.");
+    }
+
+    // AMANKAN TEKS YANG DITAMPILKAN
+    function escapeHTML(value) {
+      return String(value ?? "").replace(/[&<>"']/g, function(char) {
+        return {
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;"
+        }[char];
+      });
+    }
+
+    // BADGE STATUS
+    function statusBadge(status) {
+      const colors = {
+        "Diajukan": "bg-amber-50 text-amber-700 border-amber-200",
+        "Dijadwalkan": "bg-blue-50 text-blue-700 border-blue-200",
+        "Selesai": "bg-green-50 text-green-700 border-green-200"
+      };
+
+      return `
+        <span class="inline-block px-2 py-1 rounded-full border text-xs ${colors[status] || "bg-slate-100 text-slate-600"}">
+          ${escapeHTML(status)}
+        </span>
+      `;
+    }
+
+    // RIWAYAT MAHASISWA
+    function renderMhsTable() {
+      refreshState();
+
+      const tbody = document.getElementById("mhsTableBody");
+      tbody.innerHTML = "";
+
+      if (!currentUser || currentRole !== "mahasiswa") return;
+
+      const dataSaya = state.filter(item =>
+        String(item.npm) === String(currentUser.id)
+      );
+
+      if (dataSaya.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="p-5 text-center text-slate-400">
+              Belum ada riwayat konsultasi.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      dataSaya.forEach(item => {
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-50">
+            <td class="p-3 whitespace-nowrap">${escapeHTML(item.tanggal)}</td>
+            <td class="p-3">${escapeHTML(item.topik)}</td>
+            <td class="p-3 min-w-48">${escapeHTML(item.catatan)}</td>
+            <td class="p-3 min-w-48">${escapeHTML(item.arahan || "-")}</td>
+            <td class="p-3">${statusBadge(item.status)}</td>
+          </tr>
+        `;
+      });
+    }
+
+    // DASHBOARD DOSEN
+    function renderDosenTable() {
+      refreshState();
+
+      const tbody = document.getElementById("dosenTableBody");
+      const search = document.getElementById("dosenSearch").value
+        .trim().toLowerCase();
+
+      tbody.innerHTML = "";
+
+      if (currentRole !== "dosen" ||
+          !currentUser ||
+          currentUser.id !== DOSEN_ID) {
+        return;
+      }
+
+      const filtered = state.filter(item =>
+        String(item.nama).toLowerCase().includes(search) ||
+        String(item.npm).toLowerCase().includes(search) ||
+        String(item.topik).toLowerCase().includes(search)
+      );
+
+      document.getElementById("totalData").textContent = state.length;
+      document.getElementById("totalSelesai").textContent =
+        state.filter(item => item.status === "Selesai").length;
+      document.getElementById("totalProses").textContent =
+        state.filter(item => item.status !== "Selesai").length;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="p-5 text-center text-slate-400">
+              Belum ada data atau pencarian tidak ditemukan.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      filtered.forEach(item => {
+        const options = statusList.map(status => `
+          <option value="${status}" ${item.status === status ? "selected" : ""}>
+            ${status}
+          </option>
+        `).join("");
+
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-50 align-top">
+            <td class="p-3 min-w-40">
+              <div class="font-semibold">${escapeHTML(item.nama)}</div>
+              <div class="text-slate-500 text-xs mt-1">
+                NIM: ${escapeHTML(item.npm)}
+              </div>
+            </td>
+
+            <td class="p-3 min-w-40">
+              <div>${escapeHTML(item.tanggal)}</div>
+              <div class="font-semibold mt-1">${escapeHTML(item.topik)}</div>
+            </td>
+
+            <td class="p-3 min-w-48">${escapeHTML(item.catatan)}</td>
+
+            <td class="p-3 min-w-48">
+              <textarea id="arahan-${item.id}" rows="3"
+                class="w-full min-w-40 border rounded-lg p-2 text-sm"
+                placeholder="Tulis arahan dosen...">${escapeHTML(item.arahan === "-" ? "" : item.arahan)}</textarea>
+            </td>
+
+            <td class="p-3 min-w-36">
+              <select id="status-${item.id}"
+                class="w-full border rounded-lg p-2 text-sm">
+                ${options}
+              </select>
+            </td>
+
+            <td class="p-3 no-print">
+              <div class="flex gap-2">
+                <button onclick="updateRow(${item.id})"
+                  title="Simpan perubahan"
+                  class="bg-blue-50 border border-blue-200 text-blue-700 p-2 rounded-lg">
+                  <i class="fa-solid fa-floppy-disk"></i>
+                </button>
+
+                <button onclick="hapusRow(${item.id})"
+                  title="Hapus riwayat"
+                  class="bg-red-50 border border-red-200 text-red-600 p-2 rounded-lg">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    // SIMPAN PERUBAHAN STATUS DAN ARAHAN DOSEN
+    function updateRow(id) {
+      if (currentRole !== "dosen" ||
+          !currentUser ||
+          currentUser.id !== DOSEN_ID) {
+        alert("Hanya Tia Tanjung yang dapat mengubah data.");
+        return;
+      }
+
+      // Ambil data terbaru sebelum melakukan perubahan.
+      refreshState();
+
+      const item = state.find(data => data.id === id);
+
+      if (!item) {
+        alert("Data konsultasi tidak ditemukan. Silakan muat ulang halaman.");
+        renderDosenTable();
+        return;
+      }
+
+      const arahanInput = document.getElementById(`arahan-${id}`);
+      const statusInput = document.getElementById(`status-${id}`);
+
+      if (!arahanInput || !statusInput) return;
+
+      item.arahan = arahanInput.value.trim() || "-";
+      item.status = statusInput.value;
+
+      // Simpan status dan arahan ke localStorage.
+      if (!saveState()) {
+        refreshState();
+        renderDosenTable();
+        return;
+      }
+
+      // Tampilkan ulang data yang telah disimpan.
+      renderDosenTable();
+
+      alert("Status dan arahan berhasil disimpan.");
+    }
+
+    // HAPUS RIWAYAT
+    function hapusRow(id) {
+      if (currentRole !== "dosen" ||
+          !currentUser ||
+          currentUser.id !== DOSEN_ID) {
+        alert("Hanya Tia Tanjung yang dapat menghapus riwayat.");
+        return;
+      }
+
+      refreshState();
+
+      const item = state.find(data => data.id === id);
+      if (!item) return;
+
+      const yakin = confirm(
+        `Apakah Anda yakin ingin menghapus riwayat konsultasi milik ${item.nama}?`
+      );
+
+      if (!yakin) return;
+
+      const dataLama = [...state];
+      state = state.filter(data => data.id !== id);
+
+      if (!saveState()) {
+        state = dataLama;
+        renderDosenTable();
+        return;
+      }
+
+      renderDosenTable();
+      alert("Riwayat konsultasi berhasil dihapus.");
+    }
+
+    // PERBARUI TAMPILAN SAAT DATA BERUBAH DI TAB BROWSER LAIN
+    window.addEventListener("storage", function(event) {
+      if (event.key === STORAGE_KEY) {
+        refreshState();
+
+        if (currentRole === "mahasiswa") {
+          renderMhsTable();
+        } else if (currentRole === "dosen") {
+          renderDosenTable();
+        }
+      }
+    });
+
+    // ATUR TAMPILAN LOGIN
+    ubahFormLogin();
+  </script>
+
+</body>
+</html>
